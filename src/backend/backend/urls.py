@@ -17,6 +17,6 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('get_all_datasets/', include("backendapp.urls")),
+    path('', include("backendapp.urls")),
     path('admin/', admin.site.urls)
 ]

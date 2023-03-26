@@ -1,31 +1,28 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+
+import src.data
 from src.data import Dataset, Effort, ProjectManagement, Testing, Coding, Design, ReqAnalysis, Encoder
 import json
+from src.database.db_manager import *
+from src.data import *
 
 
-
-def create_data():
-    return ""
-def read_data(request):
-    dataset = _create_temp_dataset()
-    return HttpResponse(json.dumps(Encoder().encode(o=dataset)))
-
-def update_data():
-    return ""
-
-def delete_data():
+def user_create_datasets(request):
     return ""
 
 
+def user_read_datasets(request):
+    db_succ, db_err, database_conn = create_connection(db_fp=src.data.DB_FILEPATH)
+    is_success, get_datasets, get_stderr = read_datasets(conn=database_conn)
+    return HttpResponse(get_datasets)
 
 
-def _create_temp_dataset() -> Dataset:
-    req_a = ReqAnalysis(hours=10.0)
-    des = Design(hours=10.1)
-    coding = Coding(hours=10.2)
-    testing = Testing(hours=10.3)
-    prjmgt = ProjectManagement(hours=10.4)
-    effort = Effort(name="task 1", desc="this is a description", req_a=req_a, des=des, code=coding, test=testing,
-                    prjmgt=prjmgt)
-    return Dataset(dataset_id=1, effort=effort)
+def user_update_datasets(request):
+    return ""
+
+
+def user_delete_datasets(request):
+    return ""
+
+

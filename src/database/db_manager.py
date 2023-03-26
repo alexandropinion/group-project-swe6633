@@ -1,5 +1,7 @@
 import os
 import sqlite3
+import time
+
 import src.data as project_data
 from os.path import exists
 from sqlite3 import Error
@@ -46,7 +48,7 @@ def create_dataset(conn: sqlite3.Connection, effort_data_dict: dict) -> (bool, s
 
 
 def read_datasets(conn: sqlite3.Connection) -> (bool, list, str):
-    logging.info(msg="Reading database")
+    logging.info(msg="Reading database..")
     success: bool = False
     datasets: list = []
     stderr: str = None
@@ -55,6 +57,7 @@ def read_datasets(conn: sqlite3.Connection) -> (bool, list, str):
         cursor.execute(f"SELECT * FROM {__DB_TABLE_NAME__}")
         datasets = cursor.fetchall()
         conn.commit()
+        success = True
     except Error as e:
         success = False
         stderr = f"read_datasets error: {e}"
@@ -113,7 +116,7 @@ def close_connection(conn: sqlite3.Connection) -> (bool, str):
     try:
         conn.close()
         return True, "Connection closed."
-    except Error as e:
+    except (Error, AttributeError) as e:
         stderr = f"create_connection error: {e}"
         logging.error(msg=stderr)
         return False, e

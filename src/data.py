@@ -1,6 +1,9 @@
 import dataclasses
 import json
 from json import JSONEncoder
+import os
+
+DB_FILEPATH = f"{os.getcwd()}/database/database.db"
 
 
 class ReqAnalysis:
