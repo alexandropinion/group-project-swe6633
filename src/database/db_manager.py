@@ -1,6 +1,8 @@
 #: Imports
 import os
 import sqlite3
+import sys
+sys.path.append('../')
 import src.shared.data as project_data
 from os.path import exists
 from sqlite3 import Error
@@ -56,7 +58,10 @@ def read_datasets(conn: sqlite3.Connection) -> (bool, list, str):
     try:
         cursor = conn.cursor()
         cursor.execute(f"SELECT * FROM {__DB_TABLE_NAME__}")
-        datasets = cursor.fetchall()
+        table_data = cursor.fetchall()
+        for item in table_data:
+            one, two = item
+            datasets.append({"id": one, "effort": two})
         conn.commit()
         success = True
     except Error as e:
@@ -129,47 +134,51 @@ def _database_exists(db_fp: str) -> bool:
 
 #: Main entry point - debugging
 if __name__ == '__main__':
-    path: str = os.getcwd() + "/database.db"
-    conn_success, conn_err, db_conn = create_connection(db_fp=path)
+    conn_success, conn_err, db_conn = create_connection(db_fp=project_data.DB_FILEPATH)
+    read_db_success, datasets, read_db_err =  read_datasets(conn=db_conn)
 
-    # Make fake data
-    data_obj_1 = project_data.create_dataset(req_a_hours=1.5, des_hours=2.5, coding_hours=3.5, testing_hours=4.5,
-                                             prjmgt_hours=5.5, effort_name="effort name here",
-                                             effort_desc="description goes here",
-                                             primary_key=1)
-    data_json_str_1 = project_data.dataset_obj_to_json_str(dataset_obj=data_obj_1)
-
-    json_dict_1 = project_data.dataset_json_str_to_dict(json_str=data_json_str_1)
-
-    data_obj_2 = project_data.create_dataset(req_a_hours=6.5, des_hours=7.5, coding_hours=8.5, testing_hours=9.5,
-                                             prjmgt_hours=10.5, effort_name="2effort name here",
-                                             effort_desc="2description goes here",
-                                             primary_key=2)
-    data_json_str_2 = project_data.dataset_obj_to_json_str(dataset_obj=data_obj_2)
-
-    json_dict_2 = project_data.dataset_json_str_to_dict(json_str=data_json_str_2)
-
-    # Store data into database
-    create_dataset(conn=db_conn, effort_data_dict=json_dict_1["effort"])
-    create_dataset(conn=db_conn, effort_data_dict=json_dict_2["effort"])
-    print(f"dict1 = {json_dict_1['effort']}\ndict2 = {json_dict_2['effort']}")
-
-    # Update something in the database
-    data_obj_3 = project_data.create_dataset(req_a_hours=0.0, des_hours=0.0, coding_hours=0.0, testing_hours=0.0,
-                                             prjmgt_hours=0.0, effort_name="update example",
-                                             effort_desc="update example",
-                                             primary_key=2)
-    data_json_str_3 = project_data.dataset_obj_to_json_str(dataset_obj=data_obj_3)
-
-    json_dict_3 = project_data.dataset_json_str_to_dict(json_str=data_json_str_3)
-
-    update_dataset(conn=db_conn, effort_data_dict=json_dict_3["effort"], id=5)
-
-    # Delete something from the database
-    delete_dataset(conn=db_conn, id=5)
-    success, datasets, stderr = read_datasets(conn=db_conn)
-    for dataset in datasets:
-        print(dataset)
-    #print(f"datasets read from db: \n{datasets}")
-
-    close_connection(conn=db_conn)
+    print(datasets)
+    # path: str = os.getcwd() + "/database.db"
+    # conn_success, conn_err, db_conn = create_connection(db_fp=path)
+    #
+    # # Make fake data
+    # data_obj_1 = project_data.create_dataset(req_a_hours=1.5, des_hours=2.5, coding_hours=3.5, testing_hours=4.5,
+    #                                          prjmgt_hours=5.5, effort_name="effort name here",
+    #                                          effort_desc="description goes here",
+    #                                          primary_key=1)
+    # data_json_str_1 = project_data.dataset_obj_to_json_str(dataset_obj=data_obj_1)
+    #
+    # json_dict_1 = project_data.dataset_json_str_to_dict(json_str=data_json_str_1)
+    #
+    # data_obj_2 = project_data.create_dataset(req_a_hours=6.5, des_hours=7.5, coding_hours=8.5, testing_hours=9.5,
+    #                                          prjmgt_hours=10.5, effort_name="2effort name here",
+    #                                          effort_desc="2description goes here",
+    #                                          primary_key=2)
+    # data_json_str_2 = project_data.dataset_obj_to_json_str(dataset_obj=data_obj_2)
+    #
+    # json_dict_2 = project_data.dataset_json_str_to_dict(json_str=data_json_str_2)
+    #
+    # # Store data into database
+    # create_dataset(conn=db_conn, effort_data_dict=json_dict_1["effort"])
+    # create_dataset(conn=db_conn, effort_data_dict=json_dict_2["effort"])
+    # print(f"dict1 = {json_dict_1['effort']}\ndict2 = {json_dict_2['effort']}")
+    #
+    # # Update something in the database
+    # data_obj_3 = project_data.create_dataset(req_a_hours=0.0, des_hours=0.0, coding_hours=0.0, testing_hours=0.0,
+    #                                          prjmgt_hours=0.0, effort_name="update example",
+    #                                          effort_desc="update example",
+    #                                          primary_key=2)
+    # data_json_str_3 = project_data.dataset_obj_to_json_str(dataset_obj=data_obj_3)
+    #
+    # json_dict_3 = project_data.dataset_json_str_to_dict(json_str=data_json_str_3)
+    #
+    # update_dataset(conn=db_conn, effort_data_dict=json_dict_3["effort"], id=5)
+    #
+    # # Delete something from the database
+    # delete_dataset(conn=db_conn, id=5)
+    # success, datasets, stderr = read_datasets(conn=db_conn)
+    # for dataset in datasets:
+    #     print(dataset)
+    # # print(f"datasets read from db: \n{datasets}")
+    #
+    # close_connection(conn=db_conn)
