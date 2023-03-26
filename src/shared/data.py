@@ -1,11 +1,14 @@
-import dataclasses
+#: Imports
 import json
 from json import JSONEncoder
 import os
+from pathlib import Path
 
-DB_FILEPATH = f"{os.getcwd()}/database/database.db"
+#: Globals
+DB_FILEPATH = f"{Path(os.getcwd()).parent.absolute()}/database/database.db"
 
 
+#: Classes
 class ReqAnalysis:
     def __init__(self, hours: float):
         self.hours = hours
@@ -54,6 +57,7 @@ class Encoder(JSONEncoder):
         return obj.__dict__
 
 
+#: Functions
 def create_dataset(req_a_hours: float, des_hours: float, coding_hours: float, testing_hours: float,
                    prjmgt_hours: float, effort_name: str, effort_desc: str, primary_key: int) -> Dataset:
     req_a = ReqAnalysis(hours=req_a_hours)
@@ -91,18 +95,3 @@ if __name__ == '__main__':
     data_json_str = dataset_obj_to_json_str(dataset_obj=data_obj)
 
     json_dict = dataset_json_str_to_dict(json_str=data_json_str)
-    for items in json_dict:
-        #print(json_dict[f"{items}"])
-        print(items)
-    #     # for next_items in items:
-    #     #     print(next_items)
-    # keys = json_dict.keys()
-
-
-    print(_get_all_dataset_keys())
-
-
-    # print(keys.)
-    # print(json_dict["effort"])
-
-    # print(json_dict["effort"].keys())

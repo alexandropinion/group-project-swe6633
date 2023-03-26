@@ -1,15 +1,16 @@
+#: Imports
 import os
 import sqlite3
-import time
-
-import src.data as project_data
+import src.shared.data as project_data
 from os.path import exists
 from sqlite3 import Error
 import logging
 
+#: Globals
 __DB_TABLE_NAME__ = "datasets"
 
 
+#: Functions
 def create_connection(db_fp: str) -> (bool, str, sqlite3.Connection):
     logging.info(msg="Creating database connection...")
     conn: sqlite3.connect = None
