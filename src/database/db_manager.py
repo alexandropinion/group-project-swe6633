@@ -45,7 +45,7 @@ class Database(metaclass=Singleton):
         
         
     def connect(self, db_fp: str) -> None: # type: ignore
-        logging.info(msg="Checking database setup...")
+        logging.info(msg="Creating connection to database.")
         success: bool = False
         stderr: str = ""
         conn: sqlite3.Connection = None # type: ignore
@@ -67,13 +67,15 @@ class Database(metaclass=Singleton):
                            f"project_id INTEGER NOT NULL, risk varchar(500) NOT NULL, risk_status varchar(40) NOT NULL)")
         except Error as e:
             stderr = f"_create_database error: {e}"
-            logging.error(msg=stderr)
             conn = None # type: ignore
             success = False
+            logging.error(msg=f"Error while connecting to {db_fp}: {stderr}")
         finally:
             self.conn_success = success
             self.conn_error = stderr
             self.conn = conn
+            if self.conn_success:
+                logging.info(f"Successfully connected to the database at: {db_fp}")
         
    
     def create(self, project: Project) -> tuple[bool, str]:
@@ -91,12 +93,13 @@ class Database(metaclass=Singleton):
                                                                                                              project.analysis_hours, project.design_hours, 
                                                                                                              project.coding_hours, project.testing_hours, 
                                                                                                              project.mgt_hours,))
+            project_id: int | None = cursor.lastrowid
             for req in project.func_req:
-                cursor.execute(f"INSERT INTO {__DB_TABLE_NAME_FUNC__} VALUES (NULL, ?, ?, ?)", (project.project_id,req.requirement, req.owner,))
+                cursor.execute(f"INSERT INTO {__DB_TABLE_NAME_FUNC__} VALUES (NULL, ?, ?, ?)", (project_id,req.requirement, req.owner,))
             for req in project.non_func_req:
-                cursor.execute(f"INSERT INTO {__DB_TABLE_NAME_NON_FUNC__} VALUES (NULL, ?, ?, ?)", (project.project_id,req.requirement, req.owner,))
+                cursor.execute(f"INSERT INTO {__DB_TABLE_NAME_NON_FUNC__} VALUES (NULL, ?, ?, ?)", (project_id,req.requirement, req.owner,))
             for risk in project.risks:
-                cursor.execute(f"INSERT INTO {__DB_TABLE_NAME_RISKS__} VALUES (NULL, ?, ?, ?)", (project.project_id,risk.risk, risk.risk_status,))
+                cursor.execute(f"INSERT INTO {__DB_TABLE_NAME_RISKS__} VALUES (NULL, ?, ?, ?)", (project_id,risk.risk, risk.risk_status,))
             self.conn.commit()
             success = True
         except Error as e:
@@ -110,15 +113,13 @@ class Database(metaclass=Singleton):
     def read(self) -> tuple[bool, list, str]:
         logging.info(msg="Reading database..")
         if not self.is_connected():
-            print("CONNECTION DOWN...")
-            logging.critical("Database connection is disconnected.")
+            logging.critical("Database connection is disconnected. Reconnecting...")
             self.connect(db_fp=self.db_fp)
         success: bool = False
         all_projects_json: List[str] = []
         stderr: str = None # type: ignore
         try:
-            
-            logging.info(msg="reading from the database")
+            logging.info(msg="Reading from the database...")
             cursor = self.conn.cursor()
             cursor.execute(f"SELECT * FROM {__DB_TABLE_NAME_PRJ__}")
             prj_table = cursor.fetchall()
@@ -128,7 +129,7 @@ class Database(metaclass=Singleton):
             nonfunc_table = cursor.fetchall()
             cursor.execute(f"SELECT * FROM {__DB_TABLE_NAME_RISKS__}")
             risk_table = cursor.fetchall()
-            logging.info(msg=f"Data read from all tables:\n{prj_table}\n{func_table}\n{nonfunc_table}\n{risk_table}\n")
+            logging.info(msg=f"List of all data read from the database at {self.db_fp}:\n{prj_table}\n{func_table}\n{nonfunc_table}\n{risk_table}\n")
             all_risks: List[Risks] = [] # type: ignore
             all_func: List[FuncReq] = [] # type: ignore
             all_nonfunc: List[NonFuncReq] = [] # type: ignore

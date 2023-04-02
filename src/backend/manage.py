@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
+import logging
 import os
+from re import DEBUG
 import sys
 
 
@@ -20,4 +22,5 @@ def main():
 
 #: Main entry point of application
 if __name__ == '__main__':
+    logging.basicConfig(level=DEBUG)
     main()

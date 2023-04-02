@@ -10,13 +10,6 @@ from types import UnionType
 from typing import List
 from django import db
 import sys
-# path = Path(os.path.dirname(os.path.realpath(__file__)))
-# #path = Path(os.getcwd())
-# parent_path = path.parent.absolute()
-# parent_path_formatted = f"{parent_path}".replace('WindowsPath(','').replace('(','').replace(')','') + "\\" # type: ignore
-# sys.path.append(parent_path_formatted) # type: ignore
-# print(sys.path)
-# from database import db_manager
 
 #: Globals
 DB_FILEPATH = f"{Path(os.getcwd()).parent.absolute()}/group-project/src/database/database.db"
@@ -61,53 +54,6 @@ class Project:
     mgt_hours: float
     risks: List[Risks]
     
-    
-
-    
-    
-
-class ReqAnalysis:
-    def __init__(self, hours: float):
-        self.hours = hours
-
-
-class Design:
-    def __init__(self, hours: float):
-        self.hours = hours
-
-
-class Coding:
-    def __init__(self, hours: float):
-        self.hours = hours
-
-
-class Testing:
-    def __init__(self, hours: float):
-        self.hours = hours
-
-
-class ProjectManagement:
-    def __init__(self, hours: float):
-        self.hours = hours
-
-
-class Effort:
-    def __init__(self, name: str, desc: str, req_a: ReqAnalysis, des: Design, code: Coding, test: Testing,
-                 prjmgt: ProjectManagement):
-        self.name = name
-        self.desc = desc
-        self.req_a = req_a
-        self.des = des
-        self.code = code
-        self.test = test
-        self.prjmgt = prjmgt
-
-
-class Dataset:
-    def __init__(self, dataset_id: int, effort: Effort):
-        self.id = dataset_id
-        self.effort = effort
-
 
 class Encoder(JSONEncoder):
     def default(self, obj):
@@ -115,36 +61,29 @@ class Encoder(JSONEncoder):
 
 
 #: Functions
-def create_dataset(req_a_hours: float, des_hours: float, coding_hours: float, testing_hours: float,
-                   prjmgt_hours: float, effort_name: str, effort_desc: str, primary_key: int) -> Dataset:
-    req_a = ReqAnalysis(hours=req_a_hours)
-    des = Design(hours=des_hours)
-    coding = Coding(hours=coding_hours)
-    testing = Testing(hours=testing_hours)
-    prjmgt = ProjectManagement(hours=prjmgt_hours)
-    effort = Effort(name=effort_name, desc=effort_desc, req_a=req_a, des=des, code=coding, test=testing,
-                    prjmgt=prjmgt)
-
-    return Dataset(dataset_id=primary_key, effort=effort)
-
-
-def dataset_obj_to_json_str(dataset_obj: Dataset) -> str:
-    return json.dumps(Encoder().encode(o=dataset_obj))
-
-
 def dataset_json_str_to_dict(json_str: str) -> dict:
     return json.loads(json.loads(json_str))
 
-
-def _get_all_dataset_keys() -> list:
-    symbol_obj = create_dataset(req_a_hours=0.0, des_hours=0.0, coding_hours=0.0, testing_hours=0.0,
-                                prjmgt_hours=0.0, effort_name="", effort_desc="", primary_key=0)
-    symbol_json_str = dataset_obj_to_json_str(dataset_obj=symbol_obj)
-    symbol_dict = dataset_json_str_to_dict(json_str=symbol_json_str)
-    return [x for x in symbol_dict]
+def dataset_dict_to_obj(dict: dict) -> Project:
+    func_req_list: list = []
+    nonfunc_req_list: list = []
+    risks_list: list = []
+    project_list: list = []
+    for req in dict["func_req"]:
+        func_req_list.append(FuncReq(id=req["id"], project_id=req["project_id"], requirement=req["requirement"], owner=req["owner"]))
+    for req in dict["non_func_req"]:
+        nonfunc_req_list.append(NonFuncReq(id=req["id"], project_id=req["project_id"], requirement=req["requirement"], owner=req["owner"]))
+    for risk in dict["risks"]:
+        risks_list.append(Risks(id=risk["id"], project_id=risk["project_id"], risk=risk["risk"], risk_status=risk["risk_status"]))
+    return Project(project_id=dict["project_id"], project_name=dict["project_name"], project_desc=dict["project_desc"], project_owner=dict["project_owner"], 
+                   team_members=dict["team_members"], func_req=func_req_list, non_func_req=nonfunc_req_list, analysis_hours=dict["analysis_hours"],
+                   design_hours=dict["design_hours"], coding_hours=dict["coding_hours"],
+                   testing_hours=dict["testing_hours"], mgt_hours=dict["mgt_hours"], risks=risks_list) # type: ignore
 
 def project_data_to_json(data: Project) -> str:
     return json.dumps(dataclasses.asdict(data))
+
+
 
 
 #: Main entry point - debugging
