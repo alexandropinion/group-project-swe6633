@@ -40,8 +40,7 @@ def create_requirement():
         current_data = requests.get('http://127.0.0.1:8000/user-read-datasets')
         response = current_data.content.decode("utf-8")
         
-        #print(json.loads(current_data.content.decode("utf-8")))
-        #get_latest_ids(db_json=current_data)
+        
         try:
             project_id, func_id, nonfunc_id, risk_id = get_latest_ids(resp=response)
             fq = FuncReq(id=func_id+1, project_id=project_id+1, requirement=result_dict['func_requirement'], owner=result_dict['func_requirement_owner'])
