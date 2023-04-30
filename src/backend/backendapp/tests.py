@@ -49,8 +49,8 @@ def test_user_update_datasets() -> requests.Response:
     postdata = project_data_to_json(data=prj)
     return requests.post('http://127.0.0.1:8000/user-update-datasets', data=postdata)
 
-def test_user_delete_dataset():
-    project_id = 2  # Ensure this project id exists within the database in order for it to be updated.
+def test_user_delete_dataset(project_id_to_delete: int):
+    project_id = 4  # Ensure this project id exists within the database in order for it to be updated.
     fq1 = FuncReq(id=1, project_id=project_id, requirement="", owner="")
     nfq1 = NonFuncReq(id=1, project_id=project_id, requirement="", owner="")
     rsk1 = Risks(id=1, project_id=project_id, risk="", risk_status="")
@@ -66,7 +66,11 @@ def test_user_delete_dataset():
 
 #: Main entry point - debugging
 if __name__ == '__main__':
+    input("Press enter to create dataset...")
     test_user_create_datasets()
+    input("Press enter to read dataset...")
     test_user_read_datasets()
+    input("Press enter to update dataset...")
     test_user_update_datasets()
-    test_user_delete_dataset()
+    input("press enter to update dataset...")
+    test_user_delete_dataset(project_id_to_delete=int(input("Enter project id to delete: ")))

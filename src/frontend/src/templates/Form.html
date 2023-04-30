@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block main %}
+
+
+<h1>Create Project:</h1>
+<form action="" method="post">
+    <p>
+        {{form.name.label}} 
+        {{form.name(size=30)}}
+    </p>
+    <p>
+        {{form.desc.label}} 
+        {{form.desc(size=30)}}
+    </p>
+    <p>
+        {{form.owner.label}} 
+        {{form.owner(size=30)}}
+    </p>
+    <p>
+        {{form.members.label}} 
+        {{form.members(size=30)}}
+    </p>
+    <p>
+        {{form.analysis_hours.label}} 
+        {{form.analysis_hours(size=30)}}
+    </p>
+    <p>
+        {{form.design_hours.label}} 
+        {{form.design_hours(size=30)}}
+    </p>
+    <p>
+        {{form.coding_hours.label}} 
+        {{form.coding_hours(size=30)}}
+    </p>
+    <p>
+        {{form.testing_hours.label}} 
+        {{form.testing_hours(size=30)}}
+    </p>
+    <p>
+        {{form.mgt_hours.label}} 
+        {{form.mgt_hours(size=30)}}
+    </p>
+    <p>
+        {{form.func_requirement.label}} 
+        {{form.func_requirement(size=30)}}
+    </p>
+    <p>
+        {{form.func_requirement_owner.label}} 
+        {{form.func_requirement_owner(size=30)}}
+    </p>
+    <p>
+        {{form.nonfunc_requirement.label}} 
+        {{form.nonfunc_requirement(size=30)}}
+    </p>
+    <p>
+        {{form.nonfunc_requirement_owner.label}} 
+        {{form.nonfunc_requirement_owner(size=30)}}
+    </p>
+    <p>
+        {{form.risk.label}} 
+        {{form.risk(size=30)}}
+    </p>
+    <p>
+        {{form.risk_status.label}} 
+        {{form.risk_status(size=30)}}
+    </p>
+    <p>
+        {{form.submit()}}
+    </p>
+</form>
+
+{% endblock %}
+
+
+
